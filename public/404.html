@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+      const segment = 1;
+      const l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        '/portfolio' + 
+        (l.pathname.split('/').length > segment ? '/' + l.pathname.split('/').slice(segment).join('/').replace(/^\/?\//, '') : '') +
+        l.search + l.hash
+      );
+    </script>
+    <noscript>
+      <meta http-equiv="refresh" content="0; url=/portfolio/">
+    </noscript>
+  </head>
+  <body>
+    <h1>Redirecting...</h1>
+    <a href="/portfolio/">Click here if you are not redirected.</a>
+  </body>
+</html>
