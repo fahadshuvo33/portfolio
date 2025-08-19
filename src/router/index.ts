@@ -75,8 +75,11 @@ declare module 'vue-router' {
   }
 }
 
+// Get base URL from environment or use '/portfolio/' for GitHub Pages
+const base = import.meta.env.BASE_URL || '/portfolio/'
+
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(base),
   routes: [
     {
       path: '/v2/graphql',

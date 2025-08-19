@@ -2,23 +2,31 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Redirecting...</title>
-    <script>
-      const segment = 1;
-      const l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-        '/portfolio' + 
-        (l.pathname.split('/').length > segment ? '/' + l.pathname.split('/').slice(segment).join('/').replace(/^\/?\//, '') : '') +
-        l.search + l.hash
-      );
+    <title>Loading...</title>
+    <script type="module">
+      const base = '/portfolio/';
+      const path = window.location.pathname;
+      
+      // Redirect to the main app with the correct path
+      if (path.startsWith(base)) {
+        // Already has the base path, just reload the app
+        window.location.href = `${window.location.origin}${path}${window.location.search}${window.location.hash}`;
+      } else {
+        // Add the base path and redirect
+        const newPath = `${window.location.origin}${base}${path.replace(/^\//, '')}${window.location.search}${window.location.hash}`;
+        window.location.href = newPath;
+      }
     </script>
     <noscript>
-      <meta http-equiv="refresh" content="0; url=/portfolio/">
+      <meta http-equiv="refresh" content="0; url=/portfolio/" />
     </noscript>
   </head>
   <body>
-    <h1>Redirecting...</h1>
-    <a href="/portfolio/">Click here if you are not redirected.</a>
+    <div id="app">
+      <div style="text-align: center; margin-top: 2rem;">
+        <h1>Loading application...</h1>
+        <p>If you're not redirected automatically, <a href="/portfolio/">click here</a>.</p>
+      </div>
+    </div>
   </body>
 </html>

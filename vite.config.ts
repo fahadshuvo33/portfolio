@@ -10,11 +10,26 @@ export default defineConfig(({ mode }) => {
   
   // For GitHub Pages deployment
   const isGitHubPages = process.env.NODE_ENV === 'production' && process.env.GITHUB_ACTIONS
+  const base = isGitHubPages ? '/portfolio/' : '/'
   
   return {
-    base: isGitHubPages ? '/portfolio/' : '/',
+    base,
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vue': ['vue'],
+            'vue-router': ['vue-router'],
+          },
+        },
+      },
+    },
     server: {
+      historyApiFallback: true,
       headers: {
+        'Content-Type': 'text/javascript',
         'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https:;",
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'DENY',
