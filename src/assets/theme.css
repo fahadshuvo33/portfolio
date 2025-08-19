@@ -1,0 +1,65 @@
+/* src/assets/theme.css */
+@tailwind base;
+
+/* Theme transition classes */
+.theme-transition {
+  @apply transition-colors duration-200;
+}
+
+/* Common element theme classes */
+.themed-card {
+  @apply rounded-lg p-4 shadow-lg;
+}
+
+.themed-button {
+  @apply px-4 py-2 rounded-md transition-colors duration-200;
+}
+
+.themed-input {
+  @apply rounded-md px-3 py-2 transition-colors duration-200;
+}
+
+/* Theme-specific styles */
+.theme-dark {
+  --theme-bg-primary: theme(colors.gray.900);
+  --theme-bg-secondary: theme(colors.gray.800);
+  --theme-bg-tertiary: theme(colors.gray.700);
+  --theme-text-primary: theme(colors.gray.100);
+  --theme-text-secondary: theme(colors.gray.300);
+  --theme-text-muted: theme(colors.gray.500);
+  --theme-accent: theme(colors.green.400);
+  --theme-border: theme(colors.gray.700);
+}
+
+.theme-light {
+  --theme-bg-primary: theme(colors.white);
+  --theme-bg-secondary: theme(colors.gray.50);
+  --theme-bg-tertiary: theme(colors.gray.100);
+  --theme-text-primary: theme(colors.gray.900);
+  --theme-text-secondary: theme(colors.gray.700);
+  --theme-text-muted: theme(colors.gray.500);
+  --theme-accent: theme(colors.green.600);
+  --theme-border: theme(colors.gray.300);
+}
+
+.theme-midnight {
+  --theme-bg-primary: theme(colors.slate.950);
+  --theme-bg-secondary: theme(colors.slate.900);
+  --theme-bg-tertiary: theme(colors.slate.800);
+  --theme-text-primary: theme(colors.slate.100);
+  --theme-text-secondary: theme(colors.slate.300);
+  --theme-text-muted: theme(colors.slate.500);
+  --theme-accent: theme(colors.purple.400);
+  --theme-border: theme(colors.slate.700);
+}
+
+.theme-ocean {
+  --theme-bg-primary: theme(colors.blue.950);
+  --theme-bg-secondary: theme(colors.blue.900);
+  --theme-bg-tertiary: theme(colors.blue.800);
+  --theme-text-primary: theme(colors.blue.100);
+  --theme-text-secondary: theme(colors.blue.200);
+  --theme-text-muted: theme(colors.blue.400);
+  --theme-accent: theme(colors.cyan.400);
+  --theme-border: theme(colors.blue.700);
+}

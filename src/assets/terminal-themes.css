@@ -1,0 +1,194 @@
+/* src/styles/terminal-themes.css */
+
+/* Base styles */
+.terminal-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Background Effects */
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.space-x-3 > * + * {
+  margin-left: 0.75rem;
+}
+
+.space-x-4 > * + * {
+  margin-left: 1rem;
+}
+
+.theme-matrix {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #0f0f0f;
+  --text-primary: #00ff00;
+  --text-secondary: #00cc00;
+  --text-dim: #008800;
+  --accent: #00ff00;
+  --border: #00ff0033;
+  --glow-rgb: 0, 255, 0;
+}
+
+.theme-matrix .floating-orb {
+  background: #00ff00;
+}
+
+/* Theme: Dracula */
+.theme-dracula {
+  --bg-primary: #282a36;
+  --bg-secondary: #1e1f29;
+  --text-primary: #f8f8f2;
+  --text-secondary: #bd93f9;
+  --text-dim: #6272a4;
+  --accent: #bd93f9;
+  --border: #44475a;
+  --glow-rgb: 189, 147, 249;
+}
+
+.theme-dracula .floating-orb:nth-child(odd) {
+  background: #bd93f9;
+}
+
+.theme-dracula .floating-orb:nth-child(even) {
+  background: #ff79c6;
+}
+
+/* Theme: Monokai */
+.theme-monokai {
+  --bg-primary: #272822;
+  --bg-secondary: #1e1f1c;
+  --text-primary: #f8f8f2;
+  --text-secondary: #a6e22e;
+  --text-dim: #75715e;
+  --accent: #a6e22e;
+  --border: #3e3d32;
+  --glow-rgb: 166, 226, 46;
+}
+
+.theme-monokai .floating-orb:nth-child(odd) {
+  background: #a6e22e;
+}
+
+.theme-monokai .floating-orb:nth-child(even) {
+  background: #f92672;
+}
+
+/* Theme: Cyberpunk - Neon mix */
+/* Theme: Cyberpunk - Neon mix */
+/* Theme: Cyberpunk */
+.theme-cyberpunk {
+  --bg-primary: #0f0f23;
+  --bg-secondary: #0a0a1a;
+  --text-primary: #00d9ff;
+  --text-secondary: #ff0080;
+  --text-dim: #0088aa;
+  --accent: #ffea00;
+  --border: #00d9ff33;
+  --glow-rgb: 0, 217, 255;
+}
+.theme-cyberpunk .floating-orb:nth-child(1) {
+  background: #00d9ff;
+}
+
+.theme-cyberpunk .floating-orb:nth-child(2) {
+  background: #ff0080;
+}
+
+.theme-cyberpunk .floating-orb:nth-child(3) {
+  background: #ffea00;
+}
+
+.theme-cyberpunk .floating-orb:nth-child(4) {
+  background: #00ff88;
+}
+
+.theme-cyberpunk .floating-orb:nth-child(5) {
+  background: #ff00ff;
+}
+
+/* Theme: Minimal */
+.theme-minimal {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #141414;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-dim: #606060;
+  --accent: #ffffff;
+  --border: #333333;
+  --glow-rgb: 255, 255, 255;
+}
+
+.theme-minimal .floating-orb {
+  background: #ffffff;
+  opacity: 0.1;
+}
+
+/* Terminal window glow based on theme */
+.theme-matrix .terminal-window {
+  box-shadow:
+    0 0 50px rgba(0, 255, 0, 0.1),
+    0 0 100px rgba(0, 255, 0, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-dracula .terminal-window {
+  box-shadow:
+    0 0 50px rgba(189, 147, 249, 0.1),
+    0 0 100px rgba(189, 147, 249, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-monokai .terminal-window {
+  box-shadow:
+    0 0 50px rgba(166, 226, 46, 0.1),
+    0 0 100px rgba(166, 226, 46, 0.05),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-cyberpunk .terminal-window {
+  box-shadow:
+    0 0 50px rgba(0, 217, 255, 0.2),
+    0 0 100px rgba(255, 234, 0, 0.1),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.theme-minimal .terminal-window {
+  box-shadow:
+    0 0 50px rgba(255, 255, 255, 0.05),
+    0 0 100px rgba(255, 255, 255, 0.02),
+    0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .terminal-page {
+    padding: 0;
+  }
+
+  .theme-button span:first-child {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+/* Responsive */
