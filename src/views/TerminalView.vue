@@ -65,6 +65,7 @@ import TerminalFooter from '@/components/terminal/TerminalFooter.vue'
 import QuickActions from '@/components/terminal/QuickActions.vue'
 import BackgroundAnimation from '@/components/terminal/BackgroundAnimation.vue'
 import { executeTerminalQuery as runCommandLogic } from '@/terminal/executor'
+import { terminal } from '@/terminal/executor' // Import the terminal object
 
 // Types
 interface CommandEntry {
@@ -152,61 +153,66 @@ const executeCommand = async () => {
     timestamp: new Date(),
   })
 
+  // Add to command stack for history navigation
+  commandStack.value.push(cmd)
+  historyIndex.value = commandStack.value.length
+
   // Clear input and update history index
   currentCommand.value = ''
-  historyIndex.value = -1
+  // historyIndex.value = -1; // This line will be managed by commandStack.value.length
   totalCommands.value++
 
   try {
     // Execute command and get output
     const result = await runCommandLogic(cmd)
-    
+
     // Handle the command result
     if (result.data && typeof result.data === 'object' && 'action' in result.data) {
       // Handle action-based responses
       const { action, ...data } = result.data
-      
+
       // Update the last history entry with output
       if (commandHistory.value.length > 0) {
         const lastEntry = commandHistory.value[commandHistory.value.length - 1]
         lastEntry.output = data.message || ''
         lastEntry.isError = false
       }
-      
+
       // Handle different actions
       switch (action) {
         case 'clear':
           clearTerminal()
           break
-          
+
         case 'theme':
           if (data.theme) {
             currentTheme.value = data.theme as Theme
             localStorage.setItem('terminal-theme', data.theme)
           }
           break
-          
+
         case 'help':
           // The message is already set in the history entry
           break
-          
+
         case 'show-fields-modal':
           // TODO: Implement fields modal if needed
           break
       }
     } else {
       // Handle legacy string-based responses
-      const output = typeof result.data === 'string' 
-        ? result.data 
-        : result.data?.message || JSON.stringify(result.data, null, 2)
-      
+      const output =
+        typeof result.data === 'string'
+          ? result.data
+          : result.data?.message || JSON.stringify(result.data, null, 2)
+
       // Update the last history entry with output
       if (commandHistory.value.length > 0) {
         const lastEntry = commandHistory.value[commandHistory.value.length - 1]
         lastEntry.output = output
         lastEntry.isError = output.startsWith('❌') || output.startsWith('Error')
       }
-      
+
       // Handle legacy special commands
       if (output === 'CLEAR_TERMINAL') {
         clearTerminal()
@@ -250,47 +256,54 @@ const runCommand = (cmd: string) => {
 const navigateHistory = (direction: number) => {
   if (commandStack.value.length === 0) return
 
+  // Adjust history index based on direction
   if (direction === -1) {
-    if (historyIndex.value > 0) {
-      historyIndex.value--
-      currentCommand.value = commandStack.value[historyIndex.value]
-    }
+    // Up arrow
+    historyIndex.value = Math.max(0, historyIndex.value - 1)
   } else {
-    if (historyIndex.value < commandStack.value.length - 1) {
-      historyIndex.value++
-      currentCommand.value = commandStack.value[historyIndex.value]
-    } else {
-      historyIndex.value = commandStack.value.length
-      currentCommand.value = ''
-    }
+    // Down arrow
+    historyIndex.value = Math.min(commandStack.value.length, historyIndex.value + 1)
+  }
+
+  // Update current command based on history index
+  if (historyIndex.value < commandStack.value.length) {
+    currentCommand.value = commandStack.value[historyIndex.value]
+  } else {
+    // If at the end of history (or beyond), clear the input
+    currentCommand.value = ''
   }
 }
 
 const handleTab = () => {
   if (!currentCommand.value) return
 
-  const commands = [
-    'about',
-    'skills',
-    'projects',
-    'contact',
-    'help',
-    'clear',
-    'theme',
-    'name',
-    'email',
-    'location',
-    'experience',
-    'education',
-    'languages',
-    'tools',
-    'social',
-  ]
+  // Get all available commands and fields (including similar names) from terminal service
+  const commands = terminal.getCommands().map((cmd) => cmd.name)
+  const fieldsWithSimilars = terminal.getFieldsWithSimilars() // Use the new method
 
-  const matches = commands.filter((cmd) => cmd.startsWith(currentCommand.value.toLowerCase()))
+  console.log('Autocomplete - Commands:', commands)
+  console.log('Autocomplete - Fields with Similars:', fieldsWithSimilars)
+
+  // Combine commands and fields for autocompletion
+  const allOptions = [...commands, ...fieldsWithSimilars]
+  console.log('Autocomplete - All Options:', allOptions)
+
+  const matches = allOptions.filter((option) =>
+    option.toLowerCase().startsWith(currentCommand.value.toLowerCase()),
+  )
 
   if (matches.length === 1) {
     currentCommand.value = matches[0]
+  } else if (matches.length > 1) {
+    const matchOutput = `Available completions: ${matches.slice(0, 15).join(', ')}${
+      matches.length > 15 ? `... (${matches.length - 15} more)` : ''
+    }`
+    const historyEntry: CommandEntry = {
+      command: currentCommand.value,
+      output: matchOutput,
+      timestamp: new Date(),
+    }
+    commandHistory.value.push(historyEntry)
   }
 }
 

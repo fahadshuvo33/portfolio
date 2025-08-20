@@ -65,10 +65,13 @@ export async function executeTerminalQuery(query: string): Promise<TerminalResul
 /**
  * Main terminal interface
  */
+
+// Add to executor.ts
 export const terminal = {
   execute: executeTerminalQuery,
   getCommands: () => dataManager.getAvailableCommands(),
   getFields: () => dataManager.getAvailableFields(),
+  getFieldsWithSimilars: () => dataManager.getFieldsWithSimilars(), // Add this line
   getFieldsByCategory: () => dataManager.getFieldsByCategory(),
   getQuickActions: () => dataManager.getQuickActions(),
   getCategories: () => dataManager.getAvailableCategories(),

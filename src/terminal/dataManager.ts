@@ -15,8 +15,8 @@ import type {
   CATEGORY_ICONS,
   COMMAND_ICONS,
   PRO_TIPS,
-  USAGE_EXAMPLES,
 } from './config'
+import { USAGE_EXAMPLES, AVAILABLE_THEMES, CATEGORY_ICONS, COMMAND_ICONS } from './config' // Import all necessary constants as values
 
 class TerminalDataManager {
   /**
@@ -669,6 +669,81 @@ class TerminalDataManager {
     }
 
     return data[category as keyof typeof data] || null
+  }
+
+  private getHiddenFieldNamesWithAliases(): Set<string> {
+    const hiddenNames = new Set<string>()
+
+    // Add all hidden fields and their keys from portfolioData.hidden
+    for (const category of this.getAvailableCategories()) {
+      const hiddenCategoryData =
+        portfolioData.hidden?.[category as keyof typeof portfolioData.hidden]
+      if (hiddenCategoryData) {
+        Object.keys(hiddenCategoryData).forEach((key) => {
+          hiddenNames.add(key.toLowerCase())
+          // Add aliases for these hidden keys if they exist in similarFields
+          if (similarFields[key]) {
+            similarFields[key].forEach((alias) => hiddenNames.add(alias.toLowerCase()))
+          }
+        })
+      }
+    }
+
+    // Also ensure any field explicitly marked as hidden in findFieldAnywhere logic is covered
+    // (though the above should mostly cover it if hiddenData is comprehensive)
+    Object.entries(similarFields).forEach(([actualField, aliases]) => {
+      const fieldInfo = this.findFieldAnywhere(actualField)
+      if (fieldInfo.type === 'hidden') {
+        hiddenNames.add(actualField.toLowerCase())
+        aliases.forEach((alias) => hiddenNames.add(alias.toLowerCase()))
+      }
+    })
+
+    return hiddenNames
+  }
+
+  /**
+   * Get all available field names including similar field names (excluding hidden)
+   */
+  getFieldsWithSimilars(): string[] {
+    const fields = new Set<string>()
+    const categories = this.getAvailableCategories()
+    const hiddenFields = this.getHiddenFieldNamesWithAliases()
+
+    // Add fields from all categories, filtering out hidden ones
+    for (const category of categories) {
+      const categoryData = this.getCategoryData(category)
+      if (categoryData && typeof categoryData === 'object') {
+        Object.keys(categoryData).forEach((key) => {
+          if (!hiddenFields.has(key.toLowerCase())) {
+            fields.add(key)
+          }
+        })
+      }
+    }
+
+    // Add fields from extraData, filtering out hidden ones
+    if (portfolioData.extraData && typeof portfolioData.extraData === 'object') {
+      Object.keys(portfolioData.extraData).forEach((key) => {
+        if (!hiddenFields.has(key.toLowerCase())) {
+          fields.add(key)
+        }
+      })
+    }
+
+    // Add both actual field names AND similar field names, filtering out hidden ones
+    Object.entries(similarFields).forEach(([actualField, similarNames]) => {
+      if (!hiddenFields.has(actualField.toLowerCase())) {
+        fields.add(actualField)
+      }
+      similarNames.forEach((name) => {
+        if (!hiddenFields.has(name.toLowerCase())) {
+          fields.add(name)
+        }
+      })
+    })
+
+    return Array.from(fields).sort()
   }
 }
 
