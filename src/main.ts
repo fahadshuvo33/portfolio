@@ -41,6 +41,24 @@ try {
     .then(() => {
       app.mount('#app')
       console.log('App mounted successfully')
+
+      // Handle GitHub Pages redirect
+      const redirectPath = sessionStorage.redirect
+      if (redirectPath) {
+        const path = new URL(redirectPath).pathname
+        const base = import.meta.env.BASE_URL || '/portfolio/'
+        const cleanedPath = path.startsWith(base) ? path.substring(base.length) : path
+
+        // Ensure path starts with / for router.replace
+        const finalPath = cleanedPath.startsWith('/') ? cleanedPath : '/' + cleanedPath
+
+        if (router.currentRoute.value.path !== finalPath) {
+          router.replace(finalPath).catch((err) => {
+            console.error('Failed to redirect to original path:', err)
+          })
+        }
+        sessionStorage.removeItem('redirect')
+      }
     })
     .catch((error) => {
       console.error('Router failed to initialize:', error)

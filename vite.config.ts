@@ -7,11 +7,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current directory.
   const env = loadEnv(mode, process.cwd(), '')
-  
-  // For GitHub Pages deployment
-  const isGitHubPages = process.env.NODE_ENV === 'production' && process.env.GITHUB_ACTIONS
-  const base = isGitHubPages ? '/portfolio/' : '/'
-  
+
+  // For GitHub Pages deployment, always use '/portfolio/' in production mode
+  const base = mode === 'production' ? '/portfolio/' : '/'
+
   return {
     base,
     build: {
@@ -20,7 +19,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            'vue': ['vue'],
+            vue: ['vue'],
             'vue-router': ['vue-router'],
           },
         },
@@ -28,20 +27,13 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       historyApiFallback: true,
-      headers: {
-        'Content-Type': 'text/javascript',
-        'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https:;",
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'X-XSS-Protection': '1; mode=block',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
-      }
+      // Removed problematic headers that cause MIME type issues
     },
     preview: {
-      headers: {
-        'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https:;"
-      }
+      port: 4173,
+      historyApiFallback: true,
+      base: '/portfolio/', // Explicitly set base for preview
+      // Removed problematic headers that cause MIME type issues
     },
     plugins: [vue(), vueDevTools()],
     resolve: {
