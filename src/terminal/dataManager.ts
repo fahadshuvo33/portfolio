@@ -77,6 +77,43 @@ class TerminalDataManager {
   }
 
   /**
+   * Find similar fields for a given input
+   */
+  findSimilarFields(input: string): string[] {
+    if (!input) return []
+
+    const inputLower = input.toLowerCase().trim()
+    const allFields = this.getAvailableFields()
+
+    // Check for exact matches in similar fields (including commands)
+    for (const [actualField, aliases] of Object.entries(similarFields)) {
+      if (aliases.some((alias) => alias.toLowerCase() === inputLower)) {
+        return [actualField]
+      }
+    }
+
+    // Then check for partial matches
+    const matches = []
+    for (const [actualField, aliases] of Object.entries(similarFields)) {
+      if (
+        actualField.toLowerCase().includes(inputLower) ||
+        aliases.some((alias) => alias.toLowerCase().includes(inputLower))
+      ) {
+        matches.push(actualField)
+      }
+    }
+
+    // Also check direct field matches
+    for (const field of allFields) {
+      if (field.toLowerCase().includes(inputLower) && !matches.includes(field)) {
+        matches.push(field)
+      }
+    }
+
+    return matches.slice(0, 5) // Return top 5 matches
+  }
+
+  /**
    * Get all available field names across categories (excluding hidden fields)
    */
   getAvailableFields(): string[] {
@@ -158,6 +195,9 @@ class TerminalDataManager {
   /**
    * Parse query and determine type
    */
+  /**
+   * Parse query and determine type
+   */
   parseQuery(query: string): {
     type: 'category' | 'fields' | 'special'
     category?: string
@@ -165,31 +205,47 @@ class TerminalDataManager {
   } {
     const trimmed = query.trim()
 
-    // Check for special commands
+    // Check if the ENTIRE query is a special command (including aliases)
+    const resolvedTrimmed = this.resolveSimilarField(trimmed)
+    const commandsList = ['help', 'clear', 'fields', 'theme']
+
     if (
-      ['help', 'clear', 'fields'].includes(trimmed.toLowerCase()) ||
-      trimmed.toLowerCase().startsWith('theme')
+      commandsList.includes(resolvedTrimmed.toLowerCase()) ||
+      resolvedTrimmed.toLowerCase().startsWith('theme')
     ) {
       return { type: 'special' }
     }
 
     // Check for category syntax: category[]
-    // Alternative approach without regex
     if (trimmed.endsWith('[]') && trimmed.length > 2) {
       const category = trimmed.slice(0, -2).toLowerCase()
       return { type: 'category', category }
     }
 
-    // Otherwise, treat as field names
+    // Everything else is treated as fields
     const fields = this.parseFields(trimmed)
     return { type: 'fields', fields }
   }
+  /**
+   * Handle mixed commands with other fields
+   */
+  /**
+   * Handle mixed commands with other fields
+   */
 
   /**
    * Handle special commands (theme, clear, help, fields)
    */
+  /**
+   * Handle special commands (theme, clear, help, fields)
+   */
   async handleSpecialCommand(command: string): Promise<TerminalResult | null> {
-    const cmd = command.toLowerCase().trim()
+    // Store the original command for theme processing
+    const originalCommand = command.trim()
+
+    // Resolve any similar fields
+    const resolvedCommand = this.resolveSimilarField(originalCommand)
+    const cmd = resolvedCommand.toLowerCase()
 
     if (cmd === 'clear') {
       return {
@@ -208,12 +264,10 @@ class TerminalDataManager {
       const commandsList = Object.entries(terminalDesc.commands)
         .map(([cmd, desc]) => `  ${cmd.padEnd(12)} ${desc}`)
         .join('\n')
-      
+
       // Build examples list
-      const examplesList = terminalDesc.examples
-        .map(example => `  $ ${example}`)
-        .join('\n')
-      
+      const examplesList = terminalDesc.examples.map((example) => `  $ ${example}`).join('\n')
+
       const helpMessage = [
         'TERMINAL HELP',
         '============',
@@ -227,13 +281,13 @@ class TerminalDataManager {
         examplesList,
         '',
         `Hints: ${terminalDesc.hints}`,
-        ''
+        '',
       ].join('\n')
-      
+
       return {
         data: {
           action: 'help',
-          message: helpMessage
+          message: helpMessage,
         },
         metadata: {
           totalFields: 1,
@@ -241,7 +295,7 @@ class TerminalDataManager {
           hiddenFields: 0,
           invalidFields: 0,
         },
-      };
+      }
     }
 
     if (cmd === 'fields') {
@@ -257,7 +311,9 @@ class TerminalDataManager {
     }
 
     if (cmd.startsWith('theme')) {
-      const themeName = cmd.split(' ')[1]
+      // Use original command to preserve the theme name
+      const parts = originalCommand.split(' ')
+      const themeName = parts[1]
 
       if (!themeName) {
         return {
@@ -459,7 +515,50 @@ class TerminalDataManager {
     }
   }
 
+  /**
+   * Main query processor that routes to appropriate handlers
+   */
+  /**
+   * Main query processor that routes to appropriate handlers
+   */
+  async processQuery(query: string): Promise<TerminalResult> {
+    if (!query || query.trim() === '') {
+      return {
+        data: {
+          message: '❌ Please enter a command or field name\n\n💡 Type "help" for usage examples',
+        },
+        metadata: { totalFields: 0, validFields: 0, hiddenFields: 0, invalidFields: 1 },
+      }
+    }
+
+    const parsed = this.parseQuery(query)
+
+    switch (parsed.type) {
+      case 'special':
+        const resolvedCommand = this.resolveSimilarField(query.trim())
+        const specialResult = await this.handleSpecialCommand(resolvedCommand)
+        return (
+          specialResult || {
+            data: { message: '❌ Invalid special command\n\n💡 Type "help" for usage examples' },
+            metadata: { totalFields: 0, validFields: 0, hiddenFields: 0, invalidFields: 1 },
+          }
+        )
+
+      case 'category':
+        return await this.getCategoryByName(parsed.category!)
+
+      case 'fields':
+        return await this.getFieldsByNames(parsed.fields!)
+
+      default:
+        return {
+          data: { message: '❌ Invalid query format\n\n💡 Type "help" for usage examples' },
+          metadata: { totalFields: 0, validFields: 0, hiddenFields: 0, invalidFields: 1 },
+        }
+    }
+  }
   private parseFields(query: string): string[] {
+    // Handle comma-separated fields
     if (query.includes(',')) {
       return query
         .split(',')
@@ -467,22 +566,56 @@ class TerminalDataManager {
         .filter(Boolean)
     }
 
-    return query
-      .split(/\s+/)
-      .map((field) => field.trim())
-      .filter(Boolean)
-  }
+    // For space-separated fields, we need to be more careful
+    // Don't split on spaces within quotes, and preserve fields starting with - or --
+    const fields: string[] = []
+    let currentField = ''
+    let inQuotes = false
 
-  private resolveSimilarField(queryField: string): string {
-    const queryFieldLower = queryField.toLowerCase()
+    for (let i = 0; i < query.length; i++) {
+      const char = query[i]
 
-    for (const [actualField, similarNames] of Object.entries(similarFields)) {
-      const similarNamesLower = similarNames.map((name) => name.toLowerCase())
-      if (similarNamesLower.includes(queryFieldLower)) {
-        return actualField
+      if (char === '"' || char === "'") {
+        inQuotes = !inQuotes
+        continue
+      }
+
+      if (char === ' ' && !inQuotes) {
+        if (currentField.trim()) {
+          fields.push(currentField.trim())
+        }
+        currentField = ''
+      } else {
+        currentField += char
       }
     }
 
+    // Don't forget the last field
+    if (currentField.trim()) {
+      fields.push(currentField.trim())
+    }
+
+    return fields.filter(Boolean)
+  }
+
+  private resolveSimilarField(queryField: string): string {
+    const queryFieldLower = queryField.toLowerCase().trim()
+
+    // Check if it's an exact match for an actual field
+    for (const [actualField, similarNames] of Object.entries(similarFields)) {
+      if (actualField.toLowerCase() === queryFieldLower) {
+        return actualField
+      }
+
+      // Check similar names - ensure we're comparing trimmed lowercase versions
+      for (const similarName of similarNames) {
+        if (similarName.toLowerCase().trim() === queryFieldLower) {
+          return actualField
+        }
+      }
+    }
+
+    // Return the original field if no match found
     return queryField
   }
 
@@ -522,7 +655,7 @@ class TerminalDataManager {
       }
     }
 
-    // Return null for invalid fields instead of error
+    // Return null for invalid fields (including commands when not used properly)
     return { value: null, type: 'invalid' }
   }
 

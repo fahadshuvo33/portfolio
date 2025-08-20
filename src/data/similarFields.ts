@@ -57,6 +57,45 @@ export const fieldDescriptions: FieldDescriptions = {
 }
 
 export const similarFields = {
+  // Help command
+  help: [
+    'h',
+    'hlp',
+    'helpme',
+    'help-me',
+    '?',
+    '--help',
+    '-h',
+    '--h',
+    'docs',
+    'manual',
+    '--docs',
+    'usage',
+    '--usage',
+    '--manual',
+    'guide',
+    '--guide',
+    'tutorial',
+    '--tutorial',
+    '--helpme',
+    '--help-me',
+  ],
+  // Clear command
+  clear: [
+    '-clear',
+    '--clear',
+    'c',
+    '-c',
+    '--c',
+    'clr',
+    '-clr',
+    '--clr',
+    'clean',
+    '-clean',
+    '--clean',
+  ],
+  theme: ['t', 'color', 'style'],
+  fields: ['f', 'list', 'field_list', 'fields'],
   //about
   name: [
     'name',
@@ -358,5 +397,4 @@ export const similarFields = {
   frontend: ['frontend', 'front-end', 'frontend-projects', 'front-end-projects'],
   analytics: ['analytics', 'data-analytics', 'data-analysis', 'data-insights'],
   bots: ['bots', 'chatbots', 'automation-bots', 'ai-bots', 'bot-development'],
-  help: ['h', 'helpme', 'help-me', 'hlp'],
 }
