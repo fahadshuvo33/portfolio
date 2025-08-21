@@ -106,6 +106,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/portfolio',
+      name: 'portfolio',
+      component: HomeView,
+      meta: {
+        title: 'Portfolio',
+        loadingText: 'Loading portfolio...',
+      },
+    },
+    {
       path: '/terminal',
       name: 'terminal',
       component: TerminalView, // Use directly imported component
