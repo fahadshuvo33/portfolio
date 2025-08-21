@@ -10,23 +10,25 @@ const app = createApp(App)
 // Register global components
 app.component('LoadingSpinner', LoadingSpinner)
 
+console.log('Vue app main.ts initialized and attempting to mount.')
+
 // Error handling for development
+// Always enable error and warning handlers for better debugging across environments
+app.config.errorHandler = (err, instance, info) => {
+  console.error('Global error:', err)
+  console.error('Component:', instance)
+  console.error('Error info:', info)
+}
+
+app.config.warnHandler = (msg, instance, trace) => {
+  console.warn('Warning:', msg)
+  console.warn('Component:', instance)
+  console.warn('Trace:', trace)
+}
+
 if (import.meta.env.DEV) {
-  app.config.errorHandler = (err, instance, info) => {
-    console.error('Global error:', err)
-    console.error('Component:', instance)
-    console.error('Error info:', info)
-  }
-
-  app.config.warnHandler = (msg, instance, trace) => {
-    console.warn('Warning:', msg)
-    console.warn('Component:', instance)
-    console.warn('Trace:', trace)
-  }
-
   // Debug route changes
   router.beforeEach((to, from, next) => {
-    console.log('Navigating:', from.path, '->', to.path)
     next()
   })
 }

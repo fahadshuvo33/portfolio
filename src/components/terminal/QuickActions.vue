@@ -1,8 +1,7 @@
-<!-- src/components/terminal/QuickActions.vue -->
 <template>
   <div class="quick-actions">
     <button
-      v-for="action in actions"
+      v-for="action in quickActions"
       :key="action.cmd"
       @click="$emit('execute', action.cmd)"
       class="quick-btn"
@@ -14,15 +13,21 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 interface QuickAction {
   label: string
   cmd: string
   icon: string
 }
 
-defineProps<{
-  actions: QuickAction[]
-}>()
+const quickActions = ref<QuickAction[]>([
+  { label: 'About', cmd: 'about[]', icon: '👤' },
+  { label: 'Skills', cmd: 'skills[]', icon: '💻' },
+  { label: 'Projects', cmd: 'projects[]', icon: '📁' },
+  { label: 'Experience', cmd: 'experience[]', icon: '💼' },
+  { label: 'Education', cmd: 'education[]', icon: '🎓' },
+])
 
 defineEmits<{
   execute: [cmd: string]
@@ -33,81 +38,33 @@ defineEmits<{
 .quick-actions {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 0.5rem;
-  max-width: 600px;
-  margin: 0 auto;
+  flex-wrap: wrap;
 }
 
 .quick-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 1rem; /* Reduced vertical padding */
+  padding: 0.5rem 1rem;
 
-  /* Terminal theme styling */
-  background: var(--bg-primary);
+  background: transparent;
   color: var(--text-dim);
   border: 1px solid var(--border);
-  border-radius: 0.25rem;
+  border-radius: 12px;
 
   cursor: pointer;
   transition: all 0.2s;
-  font-family: inherit;
-  font-size: 0.813rem; /* Slightly smaller */
-
-  /* Subtle shadow */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-size: 0.875rem;
 }
 
 .quick-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  background: var(--accent);
+  color: var(--bg-primary);
   border-color: var(--accent);
-  transform: translateY(-1px);
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.3),
-    0 0 8px rgba(var(--glow-rgb), 0.2);
-}
-
-.quick-btn:active {
-  transform: translateY(0);
 }
 
 .icon {
-  font-size: 1rem; /* Smaller icon */
-}
-
-.label {
-  font-size: 0.813rem;
-  text-transform: capitalize;
-}
-
-/* Terminal-style hover effect */
-.quick-btn::before {
-  content: '> ';
-  opacity: 0;
-  transition: opacity 0.2s;
-  color: var(--accent);
-}
-
-.quick-btn:hover::before {
-  opacity: 1;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .quick-actions {
-    gap: 0.375rem;
-  }
-
-  .quick-btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-  }
-
-  .icon {
-    font-size: 0.875rem;
-  }
+  font-size: 1rem;
 }
 </style>

@@ -23,6 +23,7 @@
             @minimize="toggleCompactMode"
             @maximize="maximizeTerminal"
             @cycle-theme="cycleTheme"
+            @apply-fields="handleApplyFields"
           />
 
           <TerminalBody
@@ -51,7 +52,7 @@
       <!-- Quick Actions -->
       <div class="quick-actions-section">
         <p class="hint-text">Quick commands:</p>
-        <QuickActions :actions="quickActions" @execute="runCommand" />
+        <QuickActions @execute="runCommand" />
       </div>
     </div>
   </div>
@@ -75,12 +76,6 @@ interface CommandEntry {
   isError?: boolean
 }
 
-interface QuickAction {
-  label: string
-  cmd: string
-  icon: string
-}
-
 import { Theme, AVAILABLE_THEMES } from '@/terminal/config'
 
 type WindowState = 'normal' | 'maximized'
@@ -100,13 +95,6 @@ const totalCommands = ref(0)
 const currentTimeout = ref<number | null>(null)
 const sessionTimer = ref(0)
 let sessionInterval: number | null = null
-
-const quickActions = ref<QuickAction[]>([
-  { label: 'About', cmd: 'about', icon: '👤' },
-  { label: 'Skills', cmd: 'skills', icon: '💻' },
-  { label: 'Projects', cmd: 'projects', icon: '📁' },
-  { label: 'Contact', cmd: 'contact', icon: '📧' },
-])
 
 // Computed
 const currentTime = computed(() =>
@@ -238,7 +226,21 @@ const executeCommand = async () => {
     focusCommandInput()
   }
 }
+// Add this method after your other methods
+const handleApplyFields = (command: string) => {
+  console.log('Handling apply-fields with command:', command)
 
+  // Set the command in the input
+  currentCommand.value = command
+
+  // Optional: Focus the input and let user press enter
+  nextTick(() => {
+    focusCommandInput()
+  })
+
+  // Or automatically execute the command
+  executeCommand()
+}
 // Focus helper
 const focusCommandInput = () => {
   const input = document.querySelector('.command-input') as HTMLInputElement
@@ -475,7 +477,7 @@ onUnmounted(() => {
   margin-top: 1rem; /* Reduced from 1.5rem */
   padding-top: 1rem; /* Reduced from 1.5rem */
   border-top: 1px dashed var(--border); /* Changed to dashed */
-  max-width: 600px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
 }

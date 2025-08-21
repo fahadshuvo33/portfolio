@@ -44,6 +44,7 @@ export const CATEGORY_ICONS: Record<string, string> = {
   extra: '⭐',
 }
 
+// Fix: Make sure COMMAND_ICONS is properly exported
 export const COMMAND_ICONS = {
   help: '❓',
   clear: '🧹',

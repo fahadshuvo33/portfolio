@@ -44,7 +44,7 @@ const loadComponent = (name: string, importFn: () => Promise<{ default: Componen
       render() {
         return h('div', { class: 'flex items-center justify-center min-h-screen' }, [
           h('div', { class: 'text-center' }, [
-            h('div', { 
+            h('div', {
               class: 'spinner mx-auto mb-2.5',
               style: {
                 width: '40px',
@@ -52,13 +52,13 @@ const loadComponent = (name: string, importFn: () => Promise<{ default: Componen
                 border: '4px solid rgba(0, 0, 0, 0.1)',
                 borderRadius: '50%',
                 borderTopColor: '#3498db',
-                animation: 'spin 1s ease-in-out infinite'
-              }
+                animation: 'spin 1s ease-in-out infinite',
+              },
             }),
-            h('p', 'Loading...')
-          ])
+            h('p', 'Loading...'),
+          ]),
         ])
-      }
+      },
     },
     delay: 0,
     timeout: 10000,
@@ -78,13 +78,19 @@ declare module 'vue-router' {
 // Get base URL from environment or use '/portfolio/' for GitHub Pages
 const base = import.meta.env.BASE_URL || '/portfolio/'
 
+import HomeView from '../views/HomeView.vue'
+import ApiView from '../views/ApiView.vue'
+import TerminalView from '../views/TerminalView.vue' // Direct import
+import TestView from '../views/TestView.vue'
+import NotFound from '../views/NotFound.vue'
+
 const router = createRouter({
   history: createWebHistory(base),
   routes: [
     {
       path: '/v2/graphql',
       name: 'GraphQLv2',
-      component: () => import('@/views/ApiView.vue'),
+      component: ApiView,
       meta: {
         title: 'GraphQL Explorer v2',
         requiresAuth: false,
@@ -93,7 +99,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: loadComponent('HomeView', () => import('../views/HomeView.vue')),
+      component: HomeView,
       meta: {
         title: 'Home',
         loadingText: 'Loading home page...',
@@ -102,7 +108,7 @@ const router = createRouter({
     {
       path: '/terminal',
       name: 'terminal',
-      component: loadComponent('TerminalView', () => import('../views/TerminalView.vue')),
+      component: TerminalView, // Use directly imported component
       meta: {
         title: 'Terminal',
         loadingText: 'Initializing terminal...',
@@ -111,7 +117,7 @@ const router = createRouter({
     {
       path: '/api',
       name: 'api',
-      component: loadComponent('ApiView', () => import('../views/ApiView.vue')),
+      component: ApiView,
       meta: {
         title: 'API Explorer',
         loadingText: 'Loading API explorer...',
@@ -120,7 +126,7 @@ const router = createRouter({
     {
       path: '/test',
       name: 'test',
-      component: loadComponent('TestView', () => import('../views/TestView.vue')),
+      component: TestView,
       meta: {
         title: 'Test Page',
         loadingText: 'Loading test environment...',
@@ -130,7 +136,7 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('../views/NotFound.vue'),
+      component: NotFound,
       meta: {
         title: '404 - Page Not Found',
       },
